@@ -18,8 +18,19 @@ const temperature = ref<number>(0)
 const fahrenheit = ref<number>(0)
 function convertToFahrenheit() {
   // fahrenheit.value = (temperature.value * 9) / 5 + 32
-  api
-  .get('/temperature/convert?celsius=' + temperature.value)
+  // api
+  // .get('/temperature/convert?celsius=' + temperature.value)
+  // .then((res) => {
+  //   console.log(res)
+  //   console.log(res.data)
+  //   fahrenheit.value = res.data.fahrenheit
+  // }).catch((err) => {
+  //   console.log(err)
+  // }).finally(() => {
+  //   console.log('done')
+  // })
+    api
+  .get('/temperature/convert/' + temperature.value)
   .then((res) => {
     console.log(res)
     console.log(res.data)
@@ -28,6 +39,7 @@ function convertToFahrenheit() {
     console.log(err)
   }).finally(() => {
     console.log('done')
-  })      
+  }) 
+
 }
 </script>
