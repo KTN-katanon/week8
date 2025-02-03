@@ -25,10 +25,6 @@
               <q-radio v-model="gender" val="male" label="Male" />
               <q-radio v-model="gender" val="female" label="Female" />
             </div>
-            <div>
-              <q-btn label="Submit" type="submit" color="primary" />
-              <q-btn label="Cancel" type="reset" color="primary" flat class="q-ml-sm" />
-            </div>
           </q-form>
         </q-card-section>
 
