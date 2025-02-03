@@ -9,14 +9,15 @@
       </div>
     </div>
   </q-page>
-</template><dl></dl>
+</template>
+<dl></dl>
 
 <script lang="ts" setup>
 import { api } from 'src/boot/axios'
 import { ref } from 'vue'
 const temperature = ref<number>(0)
 const fahrenheit = ref<number>(0)
-function convertToFahrenheit() {
+async function convertToFahrenheit() {
   // fahrenheit.value = (temperature.value * 9) / 5 + 32
   // api
   // .get('/temperature/convert?celsius=' + temperature.value)
@@ -40,19 +41,30 @@ function convertToFahrenheit() {
   // }).finally(() => {
   //   console.log('done')
   // }) 
-    api
-  .post('/temperature/convert', {
-    celsius: temperature.value,
-  })
-  .then((res) => {
-    console.log(res)
-    console.log(res.data)
+  //   api
+  // .post('/temperature/convert', {
+  //   celsius: temperature.value,
+  // })
+  // .then((res) => {
+  //   console.log(res)
+  //   console.log(res.data)
+  //   fahrenheit.value = res.data.fahrenheit
+  // }).catch((err) => {
+  //   console.log(err)
+  // }).finally(() => {
+  //   console.log('done')
+  // }) 
+  try {
+    const res = await api
+      .post('/temperature/convert', {
+        celsius: temperature.value,
+      })
     fahrenheit.value = res.data.fahrenheit
-  }).catch((err) => {
+  } catch (err) {
     console.log(err)
-  }).finally(() => {
+  } finally {
     console.log('done')
-  }) 
+  }
 
 }
 </script>
