@@ -15,7 +15,10 @@
 
             <q-input filled type="password" v-model="password" label="Your Password" lazy-rules
               :rules="[(val) => (val !== null && val !== '') || 'Please type your password']" />
-
+            <div class="q-gutter-sm">
+              <q-checkbox v-model="roles" label="Admin" color="teal" val="admin" />
+              <q-checkbox v-model="roles" label="User" color="orange" val="user" />
+            </div>
             <div>
               <q-btn label="Submit" type="submit" color="primary" />
               <q-btn label="Cancel" type="reset" color="primary" flat class="q-ml-sm" />
