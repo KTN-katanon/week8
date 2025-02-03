@@ -29,8 +29,21 @@ function convertToFahrenheit() {
   // }).finally(() => {
   //   console.log('done')
   // })
+  //   api
+  // .get('/temperature/convert/' + temperature.value)
+  // .then((res) => {
+  //   console.log(res)
+  //   console.log(res.data)
+  //   fahrenheit.value = res.data.fahrenheit
+  // }).catch((err) => {
+  //   console.log(err)
+  // }).finally(() => {
+  //   console.log('done')
+  // }) 
     api
-  .get('/temperature/convert/' + temperature.value)
+  .post('/temperature/convert', {
+    celsius: temperature.value,
+  })
   .then((res) => {
     console.log(res)
     console.log(res.data)
