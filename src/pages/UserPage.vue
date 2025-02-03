@@ -91,19 +91,22 @@ const userStore = useUserStore()
 const id = ref(0)
 const email = ref('')
 const password = ref('')
+const roles = ref<('admin' | 'user')[]>([])
+const gender = ref<'male' | 'female'>('male')
+const age = ref<number>(10)
 
 function edit(row: User) {
   id.value = row.id
-  email.value = row.email
+  email.value = row.login
   password.value = row.password
   dialog.value = true
 }
 
 function onSubmit() {
   if (id.value === 0) {
-    userStore.addUser({ id: id.value, email: email.value, password: password.value })
+    userStore.addUser({ id: id.value, login: email.value, password: password.value,roles:roles.value,gender:gender.value,age:age.value })
   } else {
-    userStore.updateUser({ id: id.value, email: email.value, password: password.value })
+    userStore.updateUser({  id: id.value, login: email.value, password: password.value,roles:roles.value,gender:gender.value,age:age.value})
   }
   dialog.value = false
   onReset()
@@ -112,9 +115,9 @@ function save() {
   form.value?.validate().then((success) => {
     if (success) {
       if (id.value === 0) {
-        userStore.addUser({ id: id.value, email: email.value, password: password.value })
+        userStore.addUser({  id: id.value, login: email.value, password: password.value,roles:roles.value,gender:gender.value,age:age.value })
       } else {
-        userStore.updateUser({ id: id.value, email: email.value, password: password.value })
+        userStore.updateUser({  id: id.value, login: email.value, password: password.value,roles:roles.value,gender:gender.value,age:age.value })
       }
       dialog.value = false
       onReset()
