@@ -87,7 +87,7 @@ const password = ref('')
 const roles = ref<('admin' | 'user')[]>([])
 const gender = ref<'male' | 'female'>('male')
 const age = ref<number>(10)
-onMounted(async() => {
+onMounted(async () => {
   await userStore.getUsers()
 })
 
@@ -108,12 +108,12 @@ function onSubmit() {
   onReset()
 }
 function save() {
-  form.value?.validate().then((success) => {
+  form.value?.validate().then(async (success) => {
     if (success) {
       if (id.value === 0) {
-        userStore.addUser({ id: id.value, login: login.value, password: password.value, roles: roles.value, gender: gender.value, age: age.value })
+        await userStore.addUser({ id: id.value, login: login.value, password: password.value, roles: roles.value, gender: gender.value, age: age.value })
       } else {
-        userStore.updateUser({ id: id.value, login: login.value, password: password.value, roles: roles.value, gender: gender.value, age: age.value })
+        await userStore.updateUser({ id: id.value, login: login.value, password: password.value, roles: roles.value, gender: gender.value, age: age.value })
       }
       dialog.value = false
       onReset()
