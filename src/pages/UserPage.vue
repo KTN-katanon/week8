@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import type { User } from 'src/models'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { type QForm, type QTableColumn } from 'quasar'
 import { useUserStore } from 'src/stores/userStore'
 const dialog = ref(false)
@@ -87,6 +87,9 @@ const password = ref('')
 const roles = ref<('admin' | 'user')[]>([])
 const gender = ref<'male' | 'female'>('male')
 const age = ref<number>(10)
+onMounted(async() => {
+  await userStore.getUsers()
+})
 
 function edit(row: User) {
   id.value = row.id
