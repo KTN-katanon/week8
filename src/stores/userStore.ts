@@ -1,26 +1,9 @@
 import { defineStore, acceptHMRUpdate } from 'pinia'
 import { type User } from 'src/models'
 import { ref } from 'vue'
-
+import { api } from 'src/boot/axios'
 export const useUserStore = defineStore('user', () => {
-  const users = ref<User[]>([
-    {
-      id: 1,
-      login: 'admin@mail.com',
-      password: 'Pass@1234',
-      roles: ['admin'],
-      gender: 'male',
-      age: 42,
-    },
-    {
-      id: 1,
-      login: 'user@mail.com',
-      password: 'Pass@1234',
-      roles: ['user'],
-      gender: 'male',
-      age: 30,
-    },
-  ])
+  const users = ref<User[]>([])
 
   let lastUserId = 3
   function addUser(u: User) {
@@ -41,7 +24,20 @@ export const useUserStore = defineStore('user', () => {
   function getUserByEmail(login: string): User | undefined {
     return users.value.find((item) => item.login === login)
   }
-  return { users, addUser, delUser, updateUser, getUserByEmail }
+
+  async function getUsers() {
+    try {
+      const res = await api.get('/users/')
+      console.log(res.data)
+      users.value = res.data
+    } catch (err) {
+      console.log(err)
+    } finally {
+      console.log('finally')
+    }
+  }
+
+  return { users, addUser, delUser, updateUser, getUserByEmail, getUsers }
 })
 
 if (import.meta.hot) {
