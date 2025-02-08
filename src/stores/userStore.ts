@@ -24,11 +24,24 @@ export const useUserStore = defineStore('user', () => {
       Loading.hide()
     }
   }
-  function delUser(u: User) {
-    const index = users.value.findIndex((item) => {
-      return u.id === item.id
-    })
-    users.value.splice(index, 1)
+  async function delUser(u: User) {
+    try {
+      Loading.show()
+      const res = await api.delete('/users/' + u.id)
+      console.log(res.data)
+      await getUsers()
+    } catch (err) {
+      console.log(err)
+      Notify.create({
+        message: 'Delete failed',
+        color: 'negative',
+        position: 'top',
+        icon: 'report_problem',
+      })
+    } finally {
+      console.log('finally')
+      Loading.hide()
+    }
   }
   async function updateUser(u: User) {
     try {
