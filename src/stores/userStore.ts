@@ -2,18 +2,23 @@ import { defineStore, acceptHMRUpdate } from 'pinia'
 import { type User } from 'src/models'
 import { ref } from 'vue'
 import { api } from 'src/boot/axios'
-import { Loading } from 'quasar'
+import { Loading, Notify } from 'quasar'
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
-
   async function addUser(u: User) {
     try {
       Loading.show()
-      const res = await api.post('/users/',u)
+      const res = await api.post('/users', u)
       console.log(res.data)
       await getUsers()
     } catch (err) {
       console.log(err)
+      Notify.create({
+        message: 'Add failed',
+        color: 'negative',
+        position: 'top',
+        icon: 'report_problem',
+      })
     } finally {
       console.log('finally')
       Loading.hide()
@@ -25,11 +30,24 @@ export const useUserStore = defineStore('user', () => {
     })
     users.value.splice(index, 1)
   }
-  function updateUser(u: User) {
-    const index = users.value.findIndex((item) => {
-      return u.id === item.id
-    })
-    users.value[index] = { ...u }
+  async function updateUser(u: User) {
+    try {
+      Loading.show()
+      const res = await api.patch('/users/' + u.id, u)
+      console.log(res.data)
+      await getUsers()
+    } catch (err) {
+      console.log(err)
+      Notify.create({
+        message: 'Update failed',
+        color: 'negative',
+        position: 'top',
+        icon: 'report_problem',
+      })
+    } finally {
+      console.log('finally')
+      Loading.hide()
+    }
   }
   function getUserByEmail(login: string): User | undefined {
     return users.value.find((item) => item.login === login)
