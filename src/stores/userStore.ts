@@ -2,12 +2,22 @@ import { defineStore, acceptHMRUpdate } from 'pinia'
 import { type User } from 'src/models'
 import { ref } from 'vue'
 import { api } from 'src/boot/axios'
+import { Loading } from 'quasar'
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
 
-  let lastUserId = 3
-  function addUser(u: User) {
-    users.value.push({ ...u, id: lastUserId++ })
+  async function addUser(u: User) {
+    try {
+      Loading.show()
+      const res = await api.post('/users/',u)
+      console.log(res.data)
+      await getUsers()
+    } catch (err) {
+      console.log(err)
+    } finally {
+      console.log('finally')
+      Loading.hide()
+    }
   }
   function delUser(u: User) {
     const index = users.value.findIndex((item) => {
@@ -27,6 +37,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function getUsers() {
     try {
+      Loading.show()
       const res = await api.get('/users/')
       console.log(res.data)
       users.value = res.data
@@ -34,6 +45,7 @@ export const useUserStore = defineStore('user', () => {
       console.log(err)
     } finally {
       console.log('finally')
+      Loading.hide()
     }
   }
 
