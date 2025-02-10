@@ -9,27 +9,21 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <q-form ref="form" @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-                        <q-input filled v-model="name" label="Your name *" hint="name with Email" lazy-rules
-                            :rules="[(val) => (val && val.length > 0) || 'Please type something']" />
+                    <q-form ref="form" class="q-gutter-md">
+                        <q-input filled v-model="name" label="Product Name *" hint="Product Name" lazy-rules
+                            :rules="[(val) => (val && val.length > 0) || 'Please type product name']" />
 
-                        <q-input filled type="number" v-model="price" label="Your price" lazy-rules
+                        <q-input filled v-model.number="price" label="Your price" lazy-rules
                             :rules="[(val) => (val !== null && val !== '') || 'Please type your price']" />
-                        <div class="q-gutter-sm">
-                            <q-checkbox v-model="size" label="S" val="S" />
-                            <q-checkbox v-model="size" label="M" val="M" />
-                            <q-checkbox v-model="size" label="L" val="L" />
-                        </div>
-                        <div class="q-gutter-sm">
-                            <q-checkbox v-model="sweet" label="25" val="25" />
-                            <q-checkbox v-model="sweet" label="50" val="50" />
-                            <q-checkbox v-model="sweet" label="100" val="100" />
-                        </div>
-                        <div class="q-gutter-sm">
-                            <q-checkbox v-model="sweet" label="H" val="H" />
-                            <q-checkbox v-model="sweet" label="C" val="C" />
-                            <q-checkbox v-model="sweet" label="F" val="F" />
-                        </div>
+
+
+                        <q-select filled v-model="size" :options="['S', 'M', 'L']" label="Size Product" />
+                        <q-select filled v-model="sweet" :options="['25', '50', '100']" label="Sweet Level Product" />
+                        <q-select filled v-model="type" :options="['H', 'C', 'F']" label="Type Product" />
+
+                        <q-file filled v-model="imageFile" label="Upload Image" accept="image/*"
+                            @update:model-value="onFileChange" />
+
                     </q-form>
                 </q-card-section>
 
@@ -42,9 +36,7 @@
         <q-table :columns="columns" :rows="ProductStore.products">
             <template v-slot:body-cell-operation="{ row }">
                 <q-btn flat icon="edit" @click="edit(row)"></q-btn>
-                <q-btn flat icon="delete" @click="remove(row)">
-                    <template #default></template>
-                </q-btn>
+                <q-btn flat icon="delete" @click="remove(row)"></q-btn>
             </template>
         </q-table>
     </q-page>
@@ -100,61 +92,73 @@ const columns: QTableColumn[] = [
 const ProductStore = useProductStore()
 const id = ref(0)
 const name = ref('')
-const price = ref(0)
-const type = ref<('H' | 'C' | 'F')[]>([])
-const size = ref<('S' | 'M' | 'L')[]>([])
-const sweet = ref<('25' | '50' | '100')[]>([])
-onMounted(async () => {
-    await ProductStore.getProducts()
+const price = ref<number>(0)
+const type = ref<'H' | 'C' | 'F'>()
+const size = ref<'S' | 'M' | 'L'>('S')
+const sweet = ref<'25' | '50' | '100'>()
+const imageFile = ref<File | null>(null)
+const imagePreview = ref<string | null>(null)
+onMounted(() => {
+    setTimeout(async () => {
+        await ProductStore.getProducts()
+    }, 0) // ให้ Vue โหลดเสร็จก่อนค่อย fetch ข้อมูล
 })
 
 function edit(row: Product) {
     id.value = row.id
     name.value = row.name
     price.value = row.price
+    imagePreview.value = row.image || null
     dialog.value = true
 }
 
-function onSubmit() {
-    if (id.value === 0) {
-        ProductStore.addProduct({
-            id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
-            image: ''
-        })
+function onFileChange(file: File | null) {
+    if (file) {
+        imageFile.value = file
+        imagePreview.value = URL.createObjectURL(file)
     } else {
-        ProductStore.updateProduct({
-            id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
-            image: ''
-        })
+        imageFile.value = null
+        imagePreview.value = null
     }
-    dialog.value = false
-    onReset()
 }
-function save() {
-    form.value?.validate().then(async (success) => {
-        if (success) {
-            if (id.value === 0) {
-                await ProductStore.addProduct({
-                    id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
-                    image: ''
-                })
-            } else {
-                await ProductStore.updateProduct({
-                    id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
-                    image: ''
-                })
-            }
-            dialog.value = false
-            onReset()
+// function onSubmit() {
+//     if (id.value === 0) {
+//         ProductStore.addProduct({
+//             id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
+//             image: ''
+//         })
+//     } else {
+//         ProductStore.updateProduct({
+//             id: id.value, name: name.value, size: size.value, sweet: sweet.value, type: type.value, price: price.value,
+//             image: ''
+//         })
+//     }
+//     dialog.value = false
+//     onReset()
+// }
+async function save() {
+    const success = await form.value?.validate()
+    if (success) {
+        const imageUrl = imageFile.value ? await uploadImage(imageFile.value) : imagePreview.value || ''
+
+        if (id.value === 0) {
+            await ProductStore.addProduct({ id: id.value, name: name.value, size: size.value, sweet: sweet.value || '25', type: type.value || 'H', price: price.value, image: imageUrl })
+        } else {
+            await ProductStore.updateProduct({ id: id.value, name: name.value, size: size.value, sweet: sweet.value || '25', type: type.value || 'H', price: price.value, image: imageUrl })
         }
-    })
+
+        dialog.value = false
+        onReset()
+    }
 }
 function reset() {
-    form.value?.resetValidation()
-    id.value = 0
-    name.value = ''
-    price.value = 0
-    dialog.value = false
+    form.value?.resetValidation();
+    id.value = 0;
+    name.value = '';
+    price.value = 0;
+    imageFile.value = null;
+    imagePreview.value = null;
+    dialog.value = false;
 }
 function remove(row: Product) {
     ProductStore.delProduct(row)
@@ -164,5 +168,19 @@ function onReset() {
     name.value = ''
     price.value = 0
     dialog.value = false
+}
+
+async function uploadImage(file: File): Promise<string> {
+    // แทนที่ด้วย API อัปโหลดจริง เช่น Firebase, Supabase หรือเซิร์ฟเวอร์ของคุณ
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch('https://your-upload-api.com/upload', {
+        method: 'POST',
+        body: formData,
+    })
+
+    const data = await response.json()
+    return data.url // API ต้องคืนค่า URL ของรูปภาพที่อัปโหลด
 }
 </script>

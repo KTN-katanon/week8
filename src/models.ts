@@ -2,9 +2,9 @@ export interface Product {
   id: number;
   name: string;
   image: string;
-  size: ('S' | 'M' | 'L')[];
-  sweet: ('25' | '50' | '100')[];
-  type: ('H' | 'C' | 'F')[];
+  size: 'S' | 'M' | 'L';
+  sweet: '25' | '50' | '100';
+  type: 'H' | 'C' | 'F';
   price: number;
 }
 
